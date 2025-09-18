@@ -254,11 +254,11 @@ class GitHubAPI {
     }
 
     /**
-     * Generate GitHub search URL for issues in progress (open issues without "needs codechecker" label)
+     * Generate GitHub search URL for buddy exchange issues in progress (open issues with "buddy exchange" label but without "needs codechecker" label)
      * @returns {string} GitHub search URL
      */
     generateAssignedOpenIssuesSearchUrl() {
-        const searchQuery = `repo:${this.repo} is:open -label:"${this.availableIssuesLabel}"`;
+        const searchQuery = `repo:${this.repo} is:open label:"${this.label}" -label:"${this.availableIssuesLabel}"`;
         return `https://github.com/search?q=${encodeURIComponent(searchQuery)}&type=issues`;
     }
 
