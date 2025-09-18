@@ -5,7 +5,8 @@
       "WebFetch(domain:github.com)",
       "Bash(npm run download-deps:*)",
       "Bash(npm start)",
-      "Bash(npm run download-marked:*)"
+      "Bash(npm run download-marked:*)",
+      "WebFetch(domain:api.github.com)"
     ],
     "deny": [],
     "ask": []

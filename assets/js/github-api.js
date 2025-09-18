@@ -397,6 +397,262 @@ class GitHubAPI {
     }
 
     /**
+     * Fetch all buddy exchange issues (both open and closed) for buddy analysis
+     * @param {number} perPage - Number of issues per page (max 100)
+     * @param {number} maxPages - Maximum number of pages to fetch
+     * @returns {Promise<Array>} Array of all buddy exchange issues
+     */
+    async fetchAllBuddyExchangeIssues(perPage = BuddyExchangeConfig.github.issuesPerPage, maxPages = BuddyExchangeConfig.github.maxAllIssuesPages) {
+        try {
+            const allIssues = [];
+            let page = 1;
+
+            while (page <= maxPages) {
+                const url = `${this.baseURL}/repos/${this.repo}/issues?labels=${encodeURIComponent(this.label)}&state=all&sort=updated&direction=desc&per_page=${perPage}&page=${page}`;
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                }
+
+                const issues = await response.json();
+
+                if (issues.length === 0) {
+                    break; // No more issues
+                }
+
+                allIssues.push(...issues);
+
+                // If we got fewer issues than requested, we're on the last page
+                if (issues.length < perPage) {
+                    break;
+                }
+
+                page++;
+            }
+
+            return allIssues;
+        } catch (error) {
+            console.error('Error fetching all buddy exchange issues:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Calculate buddy ratios (received checks vs conducted checks)
+     * @param {Array} allIssues - Array of all buddy exchange issues
+     * @returns {Object} Buddy analysis data
+     */
+    calculateBuddyRatios(allIssues) {
+        const userStats = {};
+
+        if (BuddyExchangeConfig.ui.debug) {
+            console.log('Calculating buddy ratios for', allIssues.length, 'issues');
+        }
+
+        // Count received checks (issues created by users)
+        allIssues.forEach(issue => {
+            const creator = issue.user.login;
+            if (!userStats[creator]) {
+                userStats[creator] = {
+                    username: creator,
+                    avatar: issue.user.avatar_url,
+                    url: issue.user.html_url,
+                    receivedChecks: 0,
+                    conductedChecks: 0,
+                    receivedIssues: [],
+                    conductedIssues: []
+                };
+            }
+            userStats[creator].receivedChecks++;
+            userStats[creator].receivedIssues.push(issue.number);
+
+            if (BuddyExchangeConfig.ui.debug) {
+                console.log(`${creator} received check from issue #${issue.number}`);
+            }
+        });
+
+        // Count conducted checks (issues assigned to users and closed)
+        allIssues.forEach(issue => {
+            if (issue.state === 'closed' && (issue.assignee || (issue.assignees && issue.assignees.length > 0))) {
+
+                if (BuddyExchangeConfig.ui.debug) {
+                    console.log(`Issue #${issue.number} is closed with assignees:`,
+                        issue.assignee?.login,
+                        issue.assignees?.map(a => a.login));
+                }
+
+                // Count for primary assignee
+                if (issue.assignee) {
+                    const assignee = issue.assignee.login;
+                    if (!userStats[assignee]) {
+                        userStats[assignee] = {
+                            username: assignee,
+                            avatar: issue.assignee.avatar_url,
+                            url: issue.assignee.html_url,
+                            receivedChecks: 0,
+                            conductedChecks: 0,
+                            receivedIssues: [],
+                            conductedIssues: []
+                        };
+                    }
+                    userStats[assignee].conductedChecks++;
+                    userStats[assignee].conductedIssues.push(issue.number);
+
+                    if (BuddyExchangeConfig.ui.debug) {
+                        console.log(`${assignee} conducted check for issue #${issue.number}`);
+                    }
+                }
+
+                // Count for additional assignees
+                if (issue.assignees && issue.assignees.length > 0) {
+                    issue.assignees.forEach(assignee => {
+                        const assigneeLogin = assignee.login;
+                        if (!userStats[assigneeLogin]) {
+                            userStats[assigneeLogin] = {
+                                username: assigneeLogin,
+                                avatar: assignee.avatar_url,
+                                url: assignee.html_url,
+                                receivedChecks: 0,
+                                conductedChecks: 0,
+                                receivedIssues: [],
+                                conductedIssues: []
+                            };
+                        }
+
+                        // Only count once if user is both assignee and in assignees array
+                        if (!issue.assignee || issue.assignee.login !== assigneeLogin) {
+                            userStats[assigneeLogin].conductedChecks++;
+                            userStats[assigneeLogin].conductedIssues.push(issue.number);
+                        }
+                    });
+                }
+            }
+        });
+
+        // Calculate ratios and filter for "find a buddy" candidates
+        const allUsers = Object.values(userStats);
+
+        if (BuddyExchangeConfig.ui.debug) {
+            console.log('All user stats:', allUsers);
+        }
+
+        const allRecipients = allUsers
+            .filter(user => {
+                // Show all users who have received checks
+                const hasReceived = user.receivedChecks > 0;
+                if (BuddyExchangeConfig.ui.debug) {
+                    console.log(`${user.username}: received=${user.receivedChecks}, conducted=${user.conductedChecks}, hasReceived=${hasReceived}`);
+                }
+                return hasReceived;
+            })
+            .map(user => ({
+                ...user,
+                ratio: user.receivedChecks / Math.max(user.conductedChecks, 1), // Avoid division by zero
+                deficit: user.receivedChecks - user.conductedChecks,
+                searchUrl: this.generateUserIssuesSearchUrl(user.username)
+            }))
+            .sort((a, b) => b.ratio - a.ratio); // Sort by highest ratio first
+
+        return {
+            allRecipients,
+            totalUsers: allUsers.length,
+            totalIssues: allIssues.length,
+            lastUpdated: new Date()
+        };
+    }
+
+    /**
+     * Fetch codecheckers metadata from CSV
+     * @returns {Promise<Map>} Map of usernames to codecheckers metadata
+     */
+    async fetchCodecheckersMetadata() {
+        try {
+            const response = await fetch('https://raw.githubusercontent.com/codecheckers/codecheckers/refs/heads/master/codecheckers.csv');
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch codecheckers CSV: ${response.status}`);
+            }
+
+            const csvText = await response.text();
+            const codecheckersMap = new Map();
+
+            // Parse CSV
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+
+            // Find column indices
+            const nameIndex = headers.indexOf('name');
+            const handleIndex = headers.indexOf('handle');
+            const fieldsIndex = headers.indexOf('fields');
+            const languagesIndex = headers.indexOf('languages');
+
+            if (handleIndex === -1 || fieldsIndex === -1 || languagesIndex === -1) {
+                console.warn('Missing required columns in codecheckers CSV');
+                return codecheckersMap;
+            }
+
+            // Process each row (skip header)
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                // Simple CSV parsing (handles quoted fields)
+                const values = this.parseCSVLine(line);
+                if (values.length <= Math.max(handleIndex, fieldsIndex, languagesIndex)) continue;
+
+                const handle = values[handleIndex]?.trim().replace(/^@/, ''); // Remove @ prefix
+                const name = values[nameIndex]?.trim().replace(/"/g, '');
+                const fields = values[fieldsIndex]?.trim().replace(/"/g, '');
+                const languages = values[languagesIndex]?.trim().replace(/"/g, '');
+
+                if (handle && (fields || languages)) {
+                    codecheckersMap.set(handle, {
+                        name: name || handle,
+                        fields: fields || '',
+                        languages: languages || ''
+                    });
+                }
+            }
+
+            console.log(`Loaded metadata for ${codecheckersMap.size} codecheckers`);
+            return codecheckersMap;
+
+        } catch (error) {
+            console.error('Error fetching codecheckers metadata:', error);
+            return new Map();
+        }
+    }
+
+    /**
+     * Simple CSV line parser that handles quoted fields
+     * @param {string} line - CSV line to parse
+     * @returns {Array} Array of field values
+     */
+    parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current);
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current); // Add the last field
+
+        return result;
+    }
+
+    /**
      * Check API rate limit status
      * @returns {Promise<Object>} Rate limit information
      */

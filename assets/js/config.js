@@ -134,9 +134,6 @@ const BuddyExchangeConfig = {
         // Enable development mode features
         enabled: false,
 
-        // Mock API responses for testing
-        mockApiResponses: false,
-
         // Shorter refresh interval for development (in minutes)
         shortRefreshInterval: 1
     },

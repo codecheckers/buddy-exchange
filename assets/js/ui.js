@@ -22,6 +22,13 @@ class BuddyExchangeUI {
         this.activeContributors = $('#active-contributors');
         this.lastUpdated = $('#last-updated');
 
+        // Find a buddy elements
+        this.findBuddyLoading = $('#find-buddy-loading');
+        this.findBuddyError = $('#find-buddy-error');
+        this.findBuddyErrorMessage = $('#find-buddy-error-message');
+        this.findBuddyList = $('#find-buddy-list');
+        this.totalCandidates = $('#total-candidates');
+
         // Next identifier modal elements
         this.nextIdentifierLink = $('#next-identifier-link');
         this.nextIdentifierModal = $('#nextIdentifierModal');
@@ -648,6 +655,147 @@ Please assign me to this issue if available. Thank you!`;
     }
 
     /**
+     * Show find buddy loading state
+     */
+    showFindBuddyLoading() {
+        this.findBuddyError.hide();
+        this.findBuddyLoading.show();
+    }
+
+    /**
+     * Hide find buddy loading state
+     */
+    hideFindBuddyLoading() {
+        this.findBuddyLoading.hide();
+    }
+
+    /**
+     * Show find buddy error
+     * @param {string} message - Error message to display
+     */
+    showFindBuddyError(message) {
+        this.hideFindBuddyLoading();
+        this.findBuddyErrorMessage.text(message);
+        this.findBuddyError.show();
+    }
+
+    /**
+     * Render find buddy data
+     * @param {Array} recipients - Array of all users who have received buddy exchange checks
+     */
+    renderFindBuddy(recipients) {
+        this.hideFindBuddyLoading();
+        this.findBuddyError.hide();
+
+        // Update statistics
+        $('#buddy-candidates-count').text(recipients.length);
+
+        // Clear and populate buddy list
+        this.findBuddyList.empty();
+
+        if (recipients.length === 0) {
+            this.findBuddyList.append(`
+                <div class="list-group-item text-center text-muted">
+                    <p class="mb-0">No buddy exchange recipients found.</p>
+                    <small>No codecheckers have received buddy exchange checks yet.</small>
+                </div>
+            `);
+            return;
+        }
+
+        // Limit recipients according to configuration
+        const displayedRecipients = recipients.slice(0, BuddyExchangeConfig.leaderboardLength);
+
+        displayedRecipients.forEach((recipient) => {
+            const buddyItem = this.createBuddyItem(recipient);
+            this.findBuddyList.append(buddyItem);
+        });
+
+        // Show message if recipient list was truncated
+        if (recipients.length > BuddyExchangeConfig.leaderboardLength) {
+            const remainingCount = recipients.length - BuddyExchangeConfig.leaderboardLength;
+            this.findBuddyList.append(`
+                <div class="list-group-item text-center text-muted">
+                    <p class="mb-0">Showing top ${BuddyExchangeConfig.leaderboardLength} recipients.</p>
+                    <small>${remainingCount} more buddy exchange participants available.</small>
+                </div>
+            `);
+        }
+    }
+
+    /**
+     * Create a buddy item element
+     * @param {Object} recipient - Buddy exchange recipient data
+     * @returns {jQuery} Buddy item element
+     */
+    createBuddyItem(recipient) {
+        const ratioDisplay = recipient.conductedChecks === 0 ?
+            `${recipient.receivedChecks}:0` :
+            `${recipient.receivedChecks}:${recipient.conductedChecks}`;
+
+        // Create codecheckers metadata display
+        let codecheckersInfo = '';
+        if (recipient.codecheckersData) {
+            const { fields, languages } = recipient.codecheckersData;
+
+            if (fields || languages) {
+                codecheckersInfo = '<div class="mt-1">';
+
+                if (fields) {
+                    codecheckersInfo += `<div><small class="text-primary"><i class="bi bi-mortarboard me-1"></i>${this.escapeHtml(fields)}</small></div>`;
+                }
+
+                if (languages) {
+                    codecheckersInfo += `<div><small class="text-info"><i class="bi bi-code-slash me-1"></i>${this.escapeHtml(languages)}</small></div>`;
+                }
+
+                codecheckersInfo += '</div>';
+            }
+        }
+
+        // Calculate badge color based on ratio (inverted: higher ratio = darker/worse)
+        let badgeClass, badgeTitle;
+        if (recipient.ratio <= 1.0) {
+            // Balanced or giving more than receiving - good (green)
+            badgeClass = 'bg-success text-white';
+            badgeTitle = 'Balanced or giving more than receiving';
+        } else if (recipient.ratio <= 2.0) {
+            // Slightly imbalanced - warning (yellow)
+            badgeClass = 'bg-warning text-dark';
+            badgeTitle = 'Receiving more than giving';
+        } else if (recipient.ratio <= 4.0) {
+            // Quite imbalanced - concerning (orange)
+            badgeClass = 'bg-orange text-white';
+            badgeTitle = 'Significantly more receiving than giving';
+        } else {
+            // Very imbalanced - problematic (red)
+            badgeClass = 'bg-danger text-white';
+            badgeTitle = 'Much more receiving than giving';
+        }
+
+        return $(`
+            <a href="${recipient.url}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none buddy-item-link">
+                <div class="d-flex align-items-center flex-grow-1">
+                    <img src="${recipient.avatar}" alt="${recipient.username}" class="avatar me-3" width="40" height="40">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0">
+                            <span class="username-text">
+                                ${this.escapeHtml(recipient.username)}
+                            </span>
+                        </h6>
+                        <small class="text-muted">Ratio: ${ratioDisplay} (received:conducted)</small>
+                        ${codecheckersInfo}
+                    </div>
+                </div>
+                <div class="text-end ms-3">
+                    <span class="badge ${badgeClass} fs-6" title="${badgeTitle}">${recipient.ratio.toFixed(1)}</span>
+                    <div><small class="text-muted">ratio</small></div>
+                </div>
+            </a>
+        `);
+    }
+
+    /**
      * Set up event listeners
      */
     setupEventListeners() {
@@ -657,6 +805,7 @@ Please assign me to this issue if available. Thank you!`;
         this.refreshButton.on('click', () => {
             window.app.loadIssues();
             window.app.loadLeaderboard();
+            window.app.loadFindBuddy();
         });
 
         // Next identifier link

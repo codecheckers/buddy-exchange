@@ -7,6 +7,7 @@ class BuddyExchangeApp {
         this.ui = new BuddyExchangeUI();
         this.isLoading = false;
         this.isLeaderboardLoading = false;
+        this.isBuddyLoading = false;
     }
 
     /**
@@ -18,9 +19,10 @@ class BuddyExchangeApp {
         // Set up event listeners
         this.ui.setupEventListeners();
 
-        // Load initial issues and leaderboard
+        // Load initial issues, leaderboard, and buddy data
         await this.loadIssues();
         await this.loadLeaderboard();
+        await this.loadBuddyData();
 
         console.log('Application initialized successfully');
     }
@@ -115,6 +117,65 @@ class BuddyExchangeApp {
     }
 
     /**
+     * Load buddy data (find a buddy candidates)
+     */
+    async loadBuddyData() {
+        if (this.isBuddyLoading) {
+            console.log('Already loading buddy data, skipping...');
+            return;
+        }
+
+        this.isBuddyLoading = true;
+        this.ui.showFindBuddyLoading();
+
+        try {
+            console.log('Fetching all buddy exchange issues for ratio calculation...');
+
+            // Fetch both buddy data and codecheckers metadata in parallel
+            const [allIssues, codecheckersMetadata] = await Promise.all([
+                this.githubAPI.fetchAllBuddyExchangeIssues(),
+                this.githubAPI.fetchCodecheckersMetadata()
+            ]);
+
+            const buddyData = this.githubAPI.calculateBuddyRatios(allIssues);
+
+            // Get all users who have received checks in the buddy exchange program
+            const recipients = buddyData.allRecipients;
+
+            // Enrich recipients with codecheckers metadata
+            const enrichedRecipients = recipients.map(recipient => {
+                const metadata = codecheckersMetadata.get(recipient.username);
+                return {
+                    ...recipient,
+                    codecheckersData: metadata || null
+                };
+            });
+
+            console.log(`Found ${recipients.length} users who have received buddy exchange checks`);
+
+            this.ui.renderFindBuddy(enrichedRecipients);
+
+        } catch (error) {
+            console.error('Failed to load buddy data:', error);
+
+            let errorMessage = 'Failed to load buddy candidates. ';
+
+            if (error.message.includes('rate limit')) {
+                errorMessage += 'GitHub API rate limit exceeded.';
+            } else if (error.message.includes('Network')) {
+                errorMessage += 'Network error occurred.';
+            } else {
+                errorMessage += 'Please try again later.';
+            }
+
+            this.ui.showFindBuddyError(errorMessage);
+        } finally {
+            this.isBuddyLoading = false;
+            this.ui.hideFindBuddyLoading();
+        }
+    }
+
+    /**
      * Check GitHub API rate limit and display status
      */
     async checkRateLimit() {
@@ -134,13 +195,14 @@ class BuddyExchangeApp {
     }
 
     /**
-     * Refresh issues and leaderboard manually
+     * Refresh issues, leaderboard, and buddy data manually
      */
     async refresh() {
         console.log('Manual refresh triggered');
         await Promise.all([
             this.loadIssues(),
-            this.loadLeaderboard()
+            this.loadLeaderboard(),
+            this.loadBuddyData()
         ]);
     }
 }

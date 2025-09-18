@@ -455,15 +455,67 @@
 }
 
 #leaderboard-content .card-header {
-    background-color: #008033;
-    color: white;
-    border-bottom: none;
+    background-color: #f8f9fa;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
 }
 
 #leaderboard-content .card-body {
-    background-color: #f0f9f4;
+    background-color: #ffffff;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+}
+
+/* Find a Buddy section styling to match leaderboard */
+#find-buddy-content .card {
+    border: 2px solid #008033;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 128, 51, 0.1);
+}
+
+#find-buddy-content .card-header {
+    background-color: #f8f9fa;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#find-buddy-content .card-body {
+    background-color: #ffffff;
+}
+
+/* Custom badge colors for ratio display */
+.bg-orange {
+    background-color: #fd7e14 !important;
+}
+
+/* Codecheckers metadata styling */
+.buddy-item-link {
+    min-height: 80px; /* Ensure consistent height for items with/without metadata */
+}
+
+.buddy-item-link .codecheckers-info {
+    margin-top: 0.25rem;
+}
+
+.buddy-item-link .codecheckers-info small {
+    line-height: 1.2;
+    display: block;
+    margin-bottom: 0.1rem;
+}
+
+/* Responsive adjustments for metadata */
+@media (max-width: 768px) {
+    .buddy-item-link {
+        flex-direction: column;
+        align-items: flex-start !important;
+        min-height: auto;
+    }
+
+    .buddy-item-link .text-end {
+        align-self: flex-end;
+        margin-top: 0.5rem;
+        margin-left: 0 !important;
+    }
 }
 
 #leaderboard-loading {

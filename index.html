@@ -39,6 +39,10 @@
                         <a href="#" id="configure-settings-link" class="text-decoration-none">
                             Configure my default settings
                         </a>
+                        •
+                        <a href="#" id="assigned-issues-link" class="text-decoration-none">
+                            View issues in progress
+                        </a>
                     </p>
                 </div>
 
@@ -74,18 +78,30 @@
                         <p>Check back later or consider creating one!</p>
                     </div>
 
-                    <div class="text-center mt-4">
-                        <a href="#" id="assigned-issues-link" class="text-decoration-none text-muted">
-                            View assigned buddy exchange issues in progress
-                        </a>
-                    </div>
                 </div>
 
                 <!-- Leaderboard Section -->
                 <div id="leaderboard-container" class="mt-5">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>CODECHECK Buddies</h2>
-                        <small class="text-muted">Based on completed buddy exchanges.</small>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <p class="small text-muted">This list shows all codecheckers who have received buddy exchange checks in the program. Reach out to any of them for potential collaboration!</p>
+                    </div>
+
+                    <!-- Loading and Error States -->
+                    <div id="find-buddy-loading" class="text-center" style="display: none;">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading buddy candidates...</span>
+                        </div>
+                        <span class="ms-2">Loading buddy candidates...</span>
+                    </div>
+
+                    <div id="find-buddy-error" class="alert alert-danger" style="display: none;" role="alert">
+                        <h6 class="alert-heading">Find a Buddy Unavailable</h6>
+                        <p class="mb-0" id="find-buddy-error-message"></p>
                     </div>
 
                     <div id="leaderboard-loading" class="text-center" style="display: none;">
@@ -100,11 +116,27 @@
                         <p class="mb-0" id="leaderboard-error-message"></p>
                     </div>
 
-                    <div id="leaderboard-content" class="row">
-                        <div class="col-lg-8">
+                    <!-- Two Column Layout: Recipients and Contributors -->
+                    <div class="row mb-4">
+                        <!-- Recipients Column -->
+                        <div class="col-lg-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0">Top Contributors</h5>
+                                    <h5 class="card-title mb-0">Buddy Exchange Recipients</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div id="find-buddy-list" class="list-group list-group-flush">
+                                        <!-- Buddy candidates will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contributors Column -->
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Buddy Exchange Contributors</h5>
                                 </div>
                                 <div class="card-body p-0">
                                     <div id="leaderboard-list" class="list-group list-group-flush">
@@ -113,23 +145,41 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4">
+                    </div>
+
+                    <!-- Statistics Box Below -->
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto">
                             <div class="card">
                                 <div class="card-header">
                                     <h6 class="card-title mb-0">Statistics</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <span>Total Completed:</span>
-                                        <strong><a href="#" id="total-completed" class="text-decoration-none text-primary">-</a></strong>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Active Contributors:</span>
-                                        <strong><a href="#" id="active-contributors" class="text-decoration-none text-primary">-</a></strong>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Last Updated:</span>
-                                        <small id="last-updated" class="text-muted">-</small>
+                                    <div class="row">
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <div class="h5 mb-0"><a href="#" id="total-completed" class="text-decoration-none text-primary">-</a></div>
+                                                <small class="text-muted">Total Completed</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <div class="h5 mb-0"><a href="#" id="active-contributors" class="text-decoration-none text-primary">-</a></div>
+                                                <small class="text-muted">Active Contributors</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <div class="h5 mb-0" id="buddy-candidates-count">-</div>
+                                                <small class="text-muted">Recipients Found</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-center">
+                                                <small id="last-updated" class="text-muted">-</small>
+                                                <br><small class="text-muted">Last Updated</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
