@@ -33,13 +33,23 @@ class GitHubAPI {
     }
 
     /**
-     * Filter issues to show available ones (unassigned OR with "needs codechecker" label)
-     * Label takes precedence - issues with "needs codechecker" are shown even if assigned
+     * Filter issues to show available ones that have "buddy exchange" label AND (unassigned OR with "needs codechecker" label)
+     * "needs codechecker" label takes precedence - such issues are shown even if assigned
      * @param {Array} issues - Array of GitHub issues
      * @returns {Array} Filtered available issues
      */
     filterAvailableIssues(issues) {
         return issues.filter(issue => {
+            // First check if issue has "buddy exchange" label - this is required for all issues
+            const hasBuddyExchangeLabel = issue.labels.some(label =>
+                label.name.toLowerCase() === this.label.toLowerCase()
+            );
+
+            // If no "buddy exchange" label, exclude the issue
+            if (!hasBuddyExchangeLabel) {
+                return false;
+            }
+
             // Check if issue has "needs codechecker" label
             const hasNeedsCodecheckerLabel = issue.labels.some(label =>
                 label.name.toLowerCase() === this.availableIssuesLabel.toLowerCase()

@@ -181,52 +181,98 @@ class BuddyExchangeUI {
         const timeAgo = this.getTimeAgo(issue.createdAt);
         const renderedBody = this.renderMarkdown(issue.body || '');
 
-        return $(`
+        // Create card element using DOM manipulation instead of template literals
+        // to avoid issues with HTML comments and backticks in markdown content
+        const cardElement = this.createIssueCardSafely(issue, timeAgo, renderedBody);
+        return cardElement;
+    }
+
+    /**
+     * Create issue card safely using DOM manipulation to avoid template string issues
+     * @param {Object} issue - Formatted issue data
+     * @param {string} timeAgo - Formatted time string
+     * @param {string} renderedBody - Rendered markdown content
+     * @returns {jQuery} Issue card element
+     */
+    createIssueCardSafely(issue, timeAgo, renderedBody) {
+        // Create the basic card structure without dynamic content
+        const $card = $(`
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card h-100 issue-card">
                     <div class="card-header d-flex justify-content-between align-items-start">
                         <h5 class="card-title mb-0">
-                            <a href="${issue.url}" target="_blank" class="text-decoration-none">
-                                #${issue.number}: ${this.escapeHtml(issue.title)}
-                            </a>
+                            <a href="" target="_blank" class="text-decoration-none"></a>
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
-                            <img src="${issue.author.avatar}" alt="${issue.author.login}" class="avatar me-2" width="24" height="24">
+                            <img src="" alt="" class="avatar me-2" width="24" height="24">
                             <small class="text-muted">
-                                by <a href="${issue.author.url}" target="_blank">${issue.author.login}</a>
-                                <span class="ms-2">${timeAgo}</span>
+                                by <a href="" target="_blank"></a>
+                                <span class="ms-2"></span>
                             </small>
                         </div>
 
-                        ${renderedBody ? `<div class="card-text markdown-content">${renderedBody}</div>` : ''}
+                        <div class="issue-content">
+                            <div class="card-text markdown-content" style="display: none;"></div>
 
-                        <div class="labels mb-3">
-                            ${issue.labels.map(label => `
-                                <span class="badge me-1" style="background-color: #${label.color}; color: ${this.getContrastColor(label.color)};">
-                                    ${this.escapeHtml(label.name)}
-                                </span>
-                            `).join('')}
-                        </div>
-
-                        <div class="issue-meta">
-                            <small class="text-muted">
-                                <i class="bi bi-chat"></i> ${issue.comments} comments
-                            </small>
+                            <div class="labels-section">
+                                <div class="labels mb-2"></div>
+                                <div class="issue-meta">
+                                    <small class="text-muted">
+                                        <i class="bi bi-chat"></i> <span class="comment-count"></span> comments
+                                    </small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="${issue.url}" target="_blank" class="btn btn-primary btn-sm">
+                        <a href="" target="_blank" class="btn btn-primary btn-sm">
                             View on GitHub
                         </a>
-                        <button class="btn btn-outline-success btn-sm ms-2" onclick="ui.claimIssue('${issue.url}')">
+                        <button class="btn btn-outline-success btn-sm ms-2" onclick="">
                             Claim Issue
                         </button>
                     </div>
                 </div>
             </div>
         `);
+
+        // Safely populate the dynamic content
+        $card.find('.card-title a').attr('href', issue.url).text(`#${issue.number}: ${issue.title}`);
+        $card.find('.avatar').attr('src', issue.author.avatar).attr('alt', issue.author.login);
+        $card.find('small.text-muted a').attr('href', issue.author.url).text(issue.author.login);
+        $card.find('small.text-muted .ms-2').text(timeAgo);
+        $card.find('.comment-count').text(issue.comments);
+        $card.find('.card-footer a').attr('href', issue.url);
+        $card.find('.card-footer button').attr('onclick', `ui.claimIssue('${issue.url}')`);
+
+        // Add rendered body content safely
+        if (renderedBody) {
+            $card.find('.card-text.markdown-content').html(renderedBody).show();
+        }
+
+        // Add labels safely
+        const $labelsContainer = $card.find('.labels');
+        if (issue.labels && issue.labels.length > 0) {
+            issue.labels.forEach(label => {
+                const labelColor = label.color || 'cccccc';
+                const textColor = this.getContrastColor(labelColor);
+                const $labelLink = $('<a>', {
+                    href: this.getLabelUrl(label.name),
+                    target: '_blank',
+                    class: 'badge me-1 text-decoration-none',
+                    style: `background-color: #${labelColor}; color: ${textColor};`,
+                    title: `View all issues with label '${label.name}'`,
+                    text: label.name
+                });
+                $labelsContainer.append($labelLink);
+            });
+        } else {
+            $labelsContainer.append('<small class="text-muted">No labels</small>');
+        }
+
+        return $card;
     }
 
     /**
@@ -425,6 +471,16 @@ Please assign me to this issue if available. Thank you!`;
         const b = parseInt(hexColor.substr(4, 2), 16);
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
         return brightness > 128 ? 'black' : 'white';
+    }
+
+    /**
+     * Generate GitHub search URL for a specific label
+     * @param {string} labelName - Name of the label
+     * @returns {string} GitHub search URL for the label
+     */
+    getLabelUrl(labelName) {
+        const searchQuery = `repo:${BuddyExchangeConfig.repository.fullName} label:"${labelName}"`;
+        return `https://github.com/search?q=${encodeURIComponent(searchQuery)}&type=issues`;
     }
 
     /**
