@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODECHECK Buddy Exchange</title>
+    <meta name="description" content="Find and claim CODECHECK buddy exchange issues - implementing the give one get one principle">
+
+    <!-- External CODECHECK CSS -->
+    <link rel="stylesheet" href="https://codecheck.org.uk/assets/main.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <link rel="icon" href="assets/images/favicon.ico">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <img src="https://codecheck.org.uk/img/codecheck_logo.svg" alt="CODECHECK Logo" class="logo me-3">
+                <h1 class="site-title">Buddy Exchange</h1>
+            </div>
+            <p class="site-description mt-4 mb-4 px-2"><strong>Give one, get one CODECHECK!</strong> Create your own CODECHECK request and find open CODECHECK issues that need reviewing.</p>
+        </div>
+    </header>
+
+    <main id="app" class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Add Request Button -->
+                <div class="text-center mb-5">
+                    <button id="main-submit-btn" class="btn btn-success btn-lg px-5 py-3">
+                        <i class="bi bi-plus-circle me-2"></i>Submit My Request
+                    </button>
+                    <p class="mt-3 text-muted">
+                        Create your own CODECHECK request to join the buddy exchange.<br>
+                        <a href="#" id="configure-settings-link" class="text-decoration-none">
+                            Configure my default settings
+                        </a>
+                    </p>
+                </div>
+
+                <div id="loading" class="text-center" style="display: none;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading buddy exchange issues...</p>
+                </div>
+
+                <div id="error" class="alert alert-danger" style="display: none;" role="alert">
+                    <h4 class="alert-heading">Error Loading Issues</h4>
+                    <p id="error-message"></p>
+                </div>
+
+                <div id="issues-container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Available Buddy Exchange Issues</h2>
+                        <button id="refresh-btn" class="btn btn-primary"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Auto-refreshes every 5 minutes">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+
+                    <div id="issues-list" class="row">
+                        <!-- Issues will be populated here by JavaScript -->
+                    </div>
+
+                    <div id="no-issues" class="text-center mt-4" style="display: none;">
+                        <h3>No buddy exchange issues found</h3>
+                        <p>Check back later or consider creating one!</p>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="#" id="assigned-issues-link" class="text-decoration-none text-muted">
+                            View assigned buddy exchange issues in progress
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Section -->
+                <div id="leaderboard-container" class="mt-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>CODECHECK Buddies</h2>
+                        <small class="text-muted">Based on completed buddy exchanges.</small>
+                    </div>
+
+                    <div id="leaderboard-loading" class="text-center" style="display: none;">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading leaderboard...</span>
+                        </div>
+                        <span class="ms-2">Loading leaderboard...</span>
+                    </div>
+
+                    <div id="leaderboard-error" class="alert alert-danger" style="display: none;" role="alert">
+                        <h6 class="alert-heading">Leaderboard Unavailable</h6>
+                        <p class="mb-0" id="leaderboard-error-message"></p>
+                    </div>
+
+                    <div id="leaderboard-content" class="row">
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Top Contributors</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div id="leaderboard-list" class="list-group list-group-flush">
+                                        <!-- Leaderboard entries will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">Statistics</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Total Completed:</span>
+                                        <strong><a href="#" id="total-completed" class="text-decoration-none text-primary">-</a></strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Active Contributors:</span>
+                                        <strong><a href="#" id="active-contributors" class="text-decoration-none text-primary">-</a></strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Last Updated:</span>
+                                        <small id="last-updated" class="text-muted">-</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Next Identifier Modal -->
+    <div class="modal fade" id="nextIdentifierModal" tabindex="-1" aria-labelledby="nextIdentifierModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nextIdentifierModalLabel">Next Available Certificate Identifier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="identifier-loading" class="text-center" style="display: none;">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Analyzing existing certificates...</p>
+                    </div>
+
+                    <div id="identifier-error" class="alert alert-danger" style="display: none;" role="alert">
+                        <h6 class="alert-heading">Error</h6>
+                        <p class="mb-0" id="identifier-error-message"></p>
+                    </div>
+
+                    <div id="identifier-content" style="display: none;">
+                        <div class="text-center mb-4">
+                            <h3 class="text-success" id="next-identifier-display">-</h3>
+                            <p class="text-muted">This is the next available certificate identifier</p>
+                        </div>
+
+                        <div>
+                            <h6>How this is calculated:</h6>
+                            <ul class="mb-0">
+                                <li>We scan all existing issues in the register</li>
+                                <li>Extract certificate identifiers from issue titles</li>
+                                <li>Find the next sequential number available</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Your issue title will be:</strong></label>
+                            <input type="text" class="form-control" id="suggested-title" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="#" id="submit-with-identifier" target="_blank" class="btn btn-success" style="display: none;">
+                        Submit My Request Using This Identifier
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Default Settings Configuration Modal -->
+    <div class="modal fade" id="settingsConfigModal" tabindex="-1" aria-labelledby="settingsConfigModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsConfigModalLabel">Configure Default Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <p>Configure your default settings to improve your experience when using the buddy exchange. <strong>All information is stored only in your browser</strong> and never sent to external servers.</p>
+                    </div>
+
+                    <div id="current-settings-display" class="alert alert-info" style="display: none;">
+                        <h6>Currently configured settings:</h6>
+                        <ul class="mb-0">
+                            <li id="current-author-display" style="display: none;">Author name: <strong id="current-author-text">-</strong></li>
+                            <li id="current-username-display-item" style="display: none;">GitHub username: <strong id="current-username-text">-</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="github-username-input" class="form-label">GitHub Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text">@</span>
+                            <input type="text" class="form-control" id="github-username-input"
+                                   placeholder="your-github-username" maxlength="39">
+                            <div id="username-spinner" class="input-group-text" style="display: none;">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text">Used for claiming issues and generating claim messages</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="author-name-input" class="form-label">Author Name</label>
+                        <input type="text" class="form-control" id="author-name-input"
+                               placeholder="Your Full Name" maxlength="100">
+                        <div class="form-text">This will be used in issue titles when creating new requests. <span id="auto-fill-note" class="text-muted" style="display: none;">We'll try to fetch this from your GitHub profile after you entered your username above.</span></div>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <h6>🔒 Privacy & Security:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Local storage only:</strong> Your settings are stored in your browser's local storage</li>
+                            <li><strong>No external transmission:</strong> Nothing is sent to servers or third parties</li>
+                            <li><strong>Full control:</strong> You can view, modify, or remove your data at any time</li>
+                            <li><strong>Device-specific:</strong> Settings are only available on this device/browser</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" id="remove-settings-btn" style="display: none;">
+                        Clear All Settings
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="save-settings-btn">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="site-footer" class="mt-5 py-4 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="h5 pt-4">CODECHECK</div>
+                    <ul class="list-unstyled">
+                        <li class="text-secondary">© Stephen Eglen & Daniel Nüst</li>
+                        <li class="text-secondary">
+                            Published under
+                            <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a><br>
+                            <a href="https://creativecommons.org/licenses/by-sa/4.0/">
+                                <img alt="license logo" title="license logo" src="https://codecheck.org.uk/img/by-sa.svg" style="height: 20px;">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="mailto:team@cdchck.science">
+                                <img src="assets/images/icon-email.svg" alt="" class="footer-icon me-2">team@cdchck.science
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/codecheckers/" target="_blank">
+                                <img src="assets/images/icon-github.svg" alt="" class="footer-icon me-2">github.com/codecheckers
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://gitlab.com/cdchck" target="_blank">
+                                <img src="assets/images/icon-gitlab.svg" alt="" class="footer-icon me-2">gitlab.com/cdchck
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://fediscience.org/@codecheck" target="_blank">
+                                <img src="assets/images/icon-mastodon.svg" alt="" class="footer-icon me-2">codecheck@fediscience.org
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/company/codecheck/" target="_blank">
+                                <img src="assets/images/icon-linkedin.svg" alt="" class="footer-icon me-2">linkedin.com/company/codecheck/
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.youtube.com/@cdchck" target="_blank">
+                                <img src="assets/images/icon-youtube.svg" alt="" class="footer-icon me-2">youtube.com/@cdchck
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-lg">
+                    <p class="text-secondary">CODECHECK is a process for independent execution of computations underlying scholarly research articles.</p>
+                    <p>Need help? Check out the <strong><a href="https://codecheck.org.uk/faq">FAQs</a></strong>.</p>
+                    <p class="mt-3">
+                        <a href="https://github.com/codecheckers/testing-dev-register" target="_blank">Buddy Exchange Repository</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript dependencies -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/marked.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/github-api.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

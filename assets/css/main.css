@@ -1,0 +1,453 @@
+/**
+ * Custom styles for CODECHECK Buddy Exchange
+ * Complements the external CODECHECK CSS from codecheck.org.uk
+ */
+
+/* Layout and Typography */
+.site-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 0;
+}
+
+.site-title {
+    color: #008033;
+    font-weight: 600;
+    margin: 0;
+}
+
+.site-description {
+    color: #6c757d;
+    margin-bottom: 0;
+    font-size: 1.1rem;
+}
+
+.logo {
+    max-height: 48px;
+    width: auto;
+}
+
+/* Issue Cards */
+.issue-card {
+    border: 2px solid #008033;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 128, 51, 0.1);
+    background-color: #f8f9fa;
+}
+
+.issue-card:hover {
+    border-color: #006629;
+    box-shadow: 0 4px 12px rgba(0, 128, 51, 0.2);
+    transform: translateY(-2px);
+    background-color: #e8f5ea;
+}
+
+.issue-card .card-title a {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.issue-card .card-title a:hover {
+    color: #e8f5ea;
+}
+
+.issue-card .card-header {
+    background-color: #008033;
+    color: white;
+    border-bottom: none;
+    padding: 0.75rem 1rem;
+}
+
+.issue-card .card-body {
+    padding: 1rem;
+    background-color: #f0f9f4;
+}
+
+.issue-card .card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+}
+
+/* Avatar styling */
+.avatar {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Labels */
+.labels .badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #008033;
+    border-color: #008033;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #006629;
+    border-color: #006629;
+}
+
+.btn-outline-success {
+    color: #008033;
+    border-color: #008033;
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus {
+    background-color: #008033;
+    border-color: #008033;
+}
+
+/* Modal buttons */
+.modal .btn-secondary {
+    background-color: #008033;
+    border-color: #008033;
+    color: white;
+}
+
+.modal .btn-secondary:hover,
+.modal .btn-secondary:focus {
+    background-color: #006629;
+    border-color: #006629;
+    color: white;
+}
+
+.modal .btn-secondary:active {
+    background-color: #005522;
+    border-color: #005522;
+}
+
+/* Loading states */
+.spinner-border {
+    color: #008033;
+}
+
+/* Footer */
+.site-footer {
+    border-top: 1px solid #dee2e6;
+    margin-top: 3rem;
+}
+
+.site-footer a {
+    color: #008033;
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Footer icons */
+.footer-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+    filter: invert(23%) sepia(95%) saturate(1352%) hue-rotate(124deg) brightness(96%) contrast(101%);
+}
+
+.footer-icon:hover {
+    filter: invert(23%) sepia(95%) saturate(1352%) hue-rotate(124deg) brightness(80%) contrast(101%);
+}
+
+/* Issue meta information */
+.issue-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Markdown content styling */
+.markdown-content {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #2d3748;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0.5rem 0 0.25rem 0;
+    color: #1a5228;
+}
+
+.markdown-content p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 0.25rem 0 0.5rem 1rem;
+    padding-left: 1rem;
+}
+
+.markdown-content li {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.markdown-content code {
+    background-color: #e8f5ea;
+    color: #006629;
+    padding: 0.125rem 0.25rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    border: 1px solid #c3e6cb;
+}
+
+.markdown-content pre {
+    background-color: #e8f5ea;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    overflow-x: auto;
+    max-height: 150px;
+}
+
+.markdown-content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #1a5228;
+}
+
+.markdown-content blockquote {
+    border-left: 3px solid #008033;
+    padding-left: 0.75rem;
+    margin: 0.5rem 0;
+    color: #495057;
+    font-style: italic;
+}
+
+.markdown-content a {
+    color: #008033;
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    color: #006629;
+    text-decoration: underline;
+}
+
+/* Truncated content indicator */
+.markdown-content::after {
+    content: "";
+    display: block;
+    height: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .site-header .d-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .logo {
+        margin-bottom: 0.5rem;
+    }
+
+    .site-title {
+        margin-bottom: 0.25rem;
+    }
+
+    .issue-card .card-title a {
+        font-size: 0.95rem;
+    }
+
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .d-flex.justify-content-between .btn {
+        align-self: stretch;
+    }
+}
+
+
+/* Accessibility improvements */
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 128, 51, 0.25);
+}
+
+/* Print styles */
+@media print {
+    .btn,
+    .site-footer,
+    .card-footer {
+        display: none !important;
+    }
+
+    .issue-card {
+        break-inside: avoid;
+        border: 1px solid #000;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Animation for loading state */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.issue-card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Leaderboard styles */
+#leaderboard-container {
+    border-top: 2px solid #008033;
+    padding-top: 2rem;
+}
+
+#leaderboard-container h2 {
+    color: #008033;
+    font-weight: 600;
+}
+
+#leaderboard-list .list-group-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+#leaderboard-list .list-group-item:hover {
+    background-color: #e8f5ea;
+}
+
+.leaderboard-item-link {
+    color: inherit;
+    cursor: pointer;
+}
+
+.leaderboard-item-link:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+.leaderboard-item-link:hover .username-text {
+    color: #006629;
+    text-decoration: underline;
+}
+
+.leaderboard-item-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 128, 51, 0.25);
+    outline: none;
+}
+
+.rank-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #008033;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.rank-number.rank-top {
+    font-size: 1.2rem;
+}
+
+.rank-badge .rank-number {
+    margin: 0;
+}
+
+#leaderboard-content .card {
+    border: 2px solid #008033;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 128, 51, 0.1);
+}
+
+#leaderboard-content .card-header {
+    background-color: #008033;
+    color: white;
+    border-bottom: none;
+}
+
+#leaderboard-content .card-body {
+    background-color: #f0f9f4;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+#leaderboard-loading {
+    color: #008033;
+    padding: 2rem 0;
+}
+
+#leaderboard-error {
+    border-color: #ffc107;
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Leaderboard responsive adjustments */
+@media (max-width: 992px) {
+    #leaderboard-content .col-lg-4 {
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    #leaderboard-list .list-group-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+    }
+
+    #leaderboard-list .list-group-item .d-flex {
+        width: 100%;
+    }
+
+    #leaderboard-list .list-group-item .text-end {
+        align-self: flex-end;
+        text-align: left !important;
+    }
+
+    .rank-badge {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Custom utilities */
+.text-codecheck {
+    color: #008033;
+}
+
+.bg-codecheck {
+    background-color: #008033;
+}
+
+.border-codecheck {
+    border-color: #008033;
+}
