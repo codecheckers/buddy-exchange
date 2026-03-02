@@ -3,9 +3,6 @@
  * Modify these values to customize the application behavior
  */
 const BuddyExchangeConfig = {
-    // Auto-refresh interval in minutes
-    refreshIntervalMinutes: 5,
-
     // Maximum number of issues to display per page
     maxIssuesDisplayed: 50,
 
@@ -165,22 +162,9 @@ const BuddyExchangeConfig = {
         }
     },
 
-    // Development/testing settings
-    development: {
-        // Enable development mode features
-        enabled: false,
-
-        // Shorter refresh interval for development (in minutes)
-        shortRefreshInterval: 1
-    },
-
     // Validation functions
     validate() {
         const errors = [];
-
-        if (this.refreshIntervalMinutes < 1 || this.refreshIntervalMinutes > 60) {
-            errors.push('refreshIntervalMinutes must be between 1 and 60');
-        }
 
         if (this.maxIssuesDisplayed < 1 || this.maxIssuesDisplayed > 100) {
             errors.push('maxIssuesDisplayed must be between 1 and 100');
@@ -214,24 +198,14 @@ const BuddyExchangeConfig = {
         return true;
     },
 
-    // Helper method to get refresh interval in milliseconds
-    getRefreshIntervalMs() {
-        const interval = this.development.enabled ?
-            this.development.shortRefreshInterval :
-            this.refreshIntervalMinutes;
-        return interval * 60 * 1000;
-    },
-
     // Helper method to log configuration info
     logInfo() {
         if (this.ui.debug) {
-            console.group('🔧 Buddy Exchange Configuration');
+            console.group('Buddy Exchange Configuration');
             console.log('Repository:', this.repository.fullName);
-            console.log('Refresh interval:', this.refreshIntervalMinutes, 'minutes');
             console.log('Max issues displayed:', this.maxIssuesDisplayed);
             console.log('Excerpt length:', this.excerptLength, 'characters');
             console.log('Leaderboard length:', this.leaderboardLength);
-            console.log('Development mode:', this.development.enabled);
             console.groupEnd();
         }
     }

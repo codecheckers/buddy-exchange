@@ -252,17 +252,3 @@ $(document).ready(async function() {
         `);
     }
 });
-
-// Handle visibility change to refresh when tab becomes active
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && window.app) {
-        // Refresh issues when user returns to tab after 1 minute
-        const lastUpdate = window.app.lastUpdate || 0;
-        const now = Date.now();
-
-        if (now - lastUpdate > BuddyExchangeConfig.getRefreshIntervalMs()) {
-            console.log('Tab became active, refreshing issues and leaderboard...');
-            window.app.refresh();
-        }
-    }
-});

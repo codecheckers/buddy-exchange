@@ -806,10 +806,9 @@ Please assign me to this issue if available. Thank you!`;
         // Initialize Bootstrap tooltips
         this.initializeTooltips();
 
-        this.refreshButton.on('click', () => {
-            window.app.loadIssues();
-            window.app.loadLeaderboard();
-            window.app.loadFindBuddy();
+        this.refreshButton.on('click', (e) => {
+            e.preventDefault();
+            window.app.refresh();
         });
 
         // Next identifier link
@@ -880,11 +879,6 @@ Please assign me to this issue if available. Thank you!`;
         // Apply stored instance on startup
         this.updateInstanceUI();
 
-        // Auto-refresh using configured interval
-        setInterval(() => {
-            window.app.loadIssues();
-            window.app.loadLeaderboard();
-        }, BuddyExchangeConfig.getRefreshIntervalMs());
     }
 
     /**
