@@ -58,6 +58,10 @@ class BuddyExchangeUI {
         // Main submit button
         this.mainSubmitBtn = $('#main-submit-btn');
 
+        // Testing warning and instance selector
+        this.testingWarningWrapper = $('#testing-warning-wrapper');
+        this.instanceSelector = $('#instance-selector');
+
         // Assigned issues link
         this.assignedIssuesLink = $('#assigned-issues-link');
 
@@ -70,6 +74,7 @@ class BuddyExchangeUI {
      */
     showLoading() {
         this.hideAll();
+        this.issuesContainer.empty();
         this.loadingIndicator.show();
     }
 
@@ -113,13 +118,12 @@ class BuddyExchangeUI {
      */
     renderIssues(issues) {
         this.hideAll();
+        this.issuesContainer.empty();
 
         if (issues.length === 0) {
             this.showNoIssues();
             return;
         }
-
-        this.issuesContainer.empty();
 
         // Limit number of issues displayed according to configuration
         const displayedIssues = issues.slice(0, BuddyExchangeConfig.maxIssuesDisplayed);
@@ -865,11 +869,36 @@ Please assign me to this issue if available. Thank you!`;
         const assignedIssuesUrl = window.app.githubAPI.generateAssignedOpenIssuesSearchUrl();
         this.assignedIssuesLink.attr('href', assignedIssuesUrl).attr('target', '_blank');
 
+        // Instance selector change handler
+        this.instanceSelector.on('change', (e) => {
+            const selectedInstance = e.target.value;
+            BuddyExchangeConfig.setActiveInstance(selectedInstance);
+            this.updateInstanceUI();
+            window.app.switchInstance();
+        });
+
+        // Apply stored instance on startup
+        this.updateInstanceUI();
+
         // Auto-refresh using configured interval
         setInterval(() => {
             window.app.loadIssues();
             window.app.loadLeaderboard();
         }, BuddyExchangeConfig.getRefreshIntervalMs());
+    }
+
+    /**
+     * Update UI elements to reflect the current register instance
+     */
+    updateInstanceUI() {
+        const activeInstance = BuddyExchangeConfig.getActiveInstance();
+        this.instanceSelector.val(activeInstance);
+
+        if (activeInstance === 'testing') {
+            this.testingWarningWrapper.show();
+        } else {
+            this.testingWarningWrapper.hide();
+        }
     }
 
     /**
@@ -893,6 +922,7 @@ Please assign me to this issue if available. Thank you!`;
         this.identifierContent.hide();
         this.identifierError.hide();
         this.submitWithIdentifier.hide();
+        $('#submit-identifier-hint').hide();
         this.identifierLoading.show();
 
         try {
@@ -956,6 +986,7 @@ Please assign me to this issue if available. Thank you!`;
 
         this.submitWithIdentifier.attr('href', issueUrl);
         this.submitWithIdentifier.show();
+        $('#submit-identifier-hint').show();
         this.identifierContent.show();
     }
 

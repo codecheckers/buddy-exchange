@@ -559,6 +559,33 @@
     }
 }
 
+/* Instance selector in footer */
+.instance-selector-label {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.instance-selector {
+    font-size: 0.75rem;
+    color: #999;
+    background: transparent;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 0.1rem 0.3rem;
+    cursor: pointer;
+}
+
+.instance-selector:focus {
+    outline: 1px solid #008033;
+    color: #495057;
+}
+
+/* Testing mode warning */
+#testing-warning {
+    max-width: 500px;
+    font-size: 0.85rem;
+}
+
 /* Custom utilities */
 .text-codecheck {
     color: #008033;

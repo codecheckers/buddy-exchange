@@ -2,7 +2,7 @@
 
 A single page application that helps facilitate the "give one get one" principle of the buddy exchange by making it easy for codecheckers to find and claim issues that need reviewing.
 
-The app queries the GitHub API to find issues labeled "buddy exchange" in the [CODECHECK register repository](https://github.com/codecheckers/testing-dev-register) and provides easy access to issues that currently do not have an assigned codechecker.
+The app queries the GitHub API to find issues labeled "buddy exchange" in the [CODECHECK register repository](https://github.com/codecheckers/register) and provides easy access to issues that currently do not have an assigned codechecker.
 
 ## Features
 
@@ -13,7 +13,7 @@ The app queries the GitHub API to find issues labeled "buddy exchange" in the [C
 - 📱 Responsive design for mobile and desktop
 - 🎨 Consistent CODECHECK branding
 
-## Quick Start
+## Quick Start Local Version
 
 1. **Download dependencies:**
 
@@ -37,14 +37,14 @@ The app queries the GitHub API to find issues labeled "buddy exchange" in the [C
 Starts a local development server on port 8000 using Python's built-in HTTP server.
 
 - **Command:** `python3 -m http.server 8000`
-- **Access:** http://localhost:8000
+- **Access:** <http://localhost:8000>
 
 ### `npm run serve`
 
 Alternative command to start the development server (same as `npm start`).
 
 - **Command:** `python3 -m http.server 8000`
-- **Access:** http://localhost:8000
+- **Access:** <http://localhost:8000>
 
 ### `npm run download-deps`
 
@@ -57,15 +57,15 @@ Downloads all required JavaScript and CSS dependencies locally. This ensures the
 
 Downloads only the jQuery library to `assets/js/jquery.min.js`.
 
-- **Source:** https://code.jquery.com/jquery-3.7.1.min.js
+- **Source:** <https://code.jquery.com/jquery-3.7.1.min.js>
 - **Output:** `assets/js/jquery.min.js`
 
 ### `npm run download-bootstrap`
 
 Downloads Bootstrap CSS and JavaScript files to the assets directory.
 
-- **CSS Source:** https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css
-- **JS Source:** https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js
+- **CSS Source:** <https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css>
+- **JS Source:** <https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js>
 - **Output:** `assets/css/bootstrap.min.css` and `assets/js/bootstrap.min.js`
 
 ## Deployment
@@ -75,7 +75,11 @@ This application is designed for static hosting and is fully compatible with Git
 1. Push your changes to the `main` branch
 2. Enable GitHub Pages in repository settings
 3. Set source to "Deploy from a branch" → `main` → `/ (root)`
-4. Your app will be available at `https://codecheck.org.uk/buddy-exchange`
+4. Your app will be available at <https://codecheck.org.uk/buddy-exchange>
+
+## Data Source
+
+The app uses the production [CODECHECK register](https://github.com/codecheckers/register) as its data source by default. For development and testing, a separate [testing register](https://github.com/codecheckers/testing-dev-register) is available and can be selected via a small switcher in the page footer.
 
 ## Project Structure
 
@@ -90,6 +94,8 @@ buddy-exchange/
 │   ├── js/
 │   │   ├── jquery.min.js     # jQuery library (downloaded)
 │   │   ├── bootstrap.min.js  # Bootstrap JS (downloaded)
+│   │   ├── marked.min.js     # Markdown parser (downloaded)
+│   │   ├── config.js         # Application configuration
 │   │   ├── app.js            # Main application logic
 │   │   ├── github-api.js     # GitHub API interface
 │   │   └── ui.js             # UI components

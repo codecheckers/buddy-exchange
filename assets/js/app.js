@@ -195,6 +195,18 @@ class BuddyExchangeApp {
     }
 
     /**
+     * Switch register instance and reload all data
+     */
+    async switchInstance() {
+        console.log('Switching register instance to:', BuddyExchangeConfig.repository.fullName);
+        this.githubAPI = new GitHubAPI();
+        // Update the assigned issues link to point to the new repo
+        const assignedIssuesUrl = this.githubAPI.generateAssignedOpenIssuesSearchUrl();
+        $('#assigned-issues-link').attr('href', assignedIssuesUrl);
+        await this.refresh();
+    }
+
+    /**
      * Refresh issues, leaderboard, and buddy data manually
      */
     async refresh() {

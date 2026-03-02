@@ -18,7 +18,7 @@ const BuddyExchangeConfig = {
     // GitHub repository configuration
     repository: {
         owner: 'codecheckers',
-        name: 'testing-dev-register',
+        name: 'register',
 
         // Get full repository path
         get fullName() {
@@ -80,7 +80,43 @@ const BuddyExchangeConfig = {
     // Local storage keys
     storage: {
         githubUsername: 'cdchck_github_username',
-        authorName: 'cdchck_author_name'
+        authorName: 'cdchck_author_name',
+        registerInstance: 'cdchck_register_instance'
+    },
+
+    // Available register instances
+    instances: {
+        production: {
+            label: 'Production (register)',
+            owner: 'codecheckers',
+            name: 'register'
+        },
+        testing: {
+            label: 'Testing (testing-dev-register)',
+            owner: 'codecheckers',
+            name: 'testing-dev-register'
+        }
+    },
+
+    /**
+     * Get the currently active instance key from localStorage
+     * @returns {string} 'production' or 'testing'
+     */
+    getActiveInstance() {
+        const stored = localStorage.getItem(this.storage.registerInstance);
+        return (stored === 'testing') ? 'testing' : 'production';
+    },
+
+    /**
+     * Set the active instance and update repository config
+     * @param {string} key - 'production' or 'testing'
+     */
+    setActiveInstance(key) {
+        if (!this.instances[key]) return;
+        localStorage.setItem(this.storage.registerInstance, key);
+        this.repository.owner = this.instances[key].owner;
+        this.repository.name = this.instances[key].name;
+        console.log(`Switched to ${key} instance: ${this.repository.fullName}`);
     },
 
     // External URLs
@@ -204,6 +240,11 @@ const BuddyExchangeConfig = {
 // Validate configuration on load
 try {
     BuddyExchangeConfig.validate();
+    // Apply stored instance selection (must happen after validation)
+    const activeInstance = BuddyExchangeConfig.getActiveInstance();
+    if (activeInstance !== 'production') {
+        BuddyExchangeConfig.setActiveInstance(activeInstance);
+    }
     BuddyExchangeConfig.logInfo();
 } catch (error) {
     console.error('Failed to initialize Buddy Exchange configuration:', error);

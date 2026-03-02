@@ -34,6 +34,11 @@
                     <button id="main-submit-btn" class="btn btn-success btn-lg px-5 py-3">
                         <i class="bi bi-plus-circle me-2"></i>Submit My Request
                     </button>
+                    <div class="mt-3" id="testing-warning-wrapper" style="display: none;">
+                        <div id="testing-warning" class="alert alert-warning d-inline-block mb-0 px-3 py-2" role="alert">
+                            <small>You are using the <strong>testing register</strong>. Submissions will go to <code>testing-dev-register</code>, not the production register.</small>
+                        </div>
+                    </div>
                     <p class="mt-3 text-muted">
                         Create your own CODECHECK request to join the buddy exchange.<br>
                         <a href="#" id="configure-settings-link" class="text-decoration-none">
@@ -235,8 +240,11 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <a href="#" id="submit-with-identifier" target="_blank" class="btn btn-success" style="display: none;">
-                        Submit My Request Using This Identifier
+                        Create My Request Using This Identifier
                     </a>
+                    <p id="submit-identifier-hint" class="text-muted small mt-2 mb-0" style="display: none;">
+                        This will open a new GitHub issue where you can fill in all the details for your CODECHECK request.
+                    </p>
                 </div>
             </div>
         </div>
@@ -364,9 +372,16 @@
                     <p class="text-secondary">CODECHECK is a process for independent execution of computations underlying scholarly research articles.</p>
                     <p>Need help? Check out the <strong><a href="https://codecheck.org.uk/faq">FAQs</a></strong>.</p>
                     <p class="mt-3">
-                        <a href="https://github.com/codecheckers/register" target="_blank">Buddy Exchange Repository</a>
+                        <a href="https://github.com/codecheckers/register" target="_blank">CODECHECK Register</a>
                         •
                         <a href="https://github.com/codecheckers/buddy-exchange" target="_blank">Source Code</a>
+                    </p>
+                    <p class="mt-2 mb-0">
+                        <label for="instance-selector" class="instance-selector-label">Register instance:</label>
+                        <select id="instance-selector" class="instance-selector">
+                            <option value="production">Production (register)</option>
+                            <option value="testing">Testing (testing-dev-register)</option>
+                        </select>
                     </p>
                 </div>
             </div>
