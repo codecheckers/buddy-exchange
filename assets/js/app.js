@@ -234,6 +234,9 @@ $(document).ready(async function() {
         window.app = app;
         window.ui = ui;
 
+        // Display app version in footer
+        $('#app-version').text(`v${BuddyExchangeConfig.version}`);
+
         // Initialize the application
         await app.init();
 

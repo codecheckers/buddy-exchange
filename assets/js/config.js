@@ -3,6 +3,9 @@
  * Modify these values to customize the application behavior
  */
 const BuddyExchangeConfig = {
+    // App version (must match package.json)
+    version: '0.1.0',
+
     // Maximum number of issues to display per page
     maxIssuesDisplayed: 50,
 

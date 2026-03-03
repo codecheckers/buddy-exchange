@@ -1,6 +1,6 @@
 {
   "name": "buddy-exchange",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Single page application realising a 'give one get one' exchange for CODECHECKs",
   "main": "index.html",
   "scripts": {
